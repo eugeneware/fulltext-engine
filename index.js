@@ -3,8 +3,9 @@ var nlp = require('./nlp'),
     tokenizeWords = nlp.tokenizeWords;
 
 module.exports = fulltextEngine;
-function fulltextEngine() {
+function fulltextEngine(fuzzy) {
   return {
+    fuzzy: fuzzy,
     query: query,
     match: match,
     plans: {
@@ -15,10 +16,13 @@ function fulltextEngine() {
 
 module.exports.index = index;
 function index(prop) {
-  return function (key, value, emit) {
+  return function (key, value, emit, options) {
+    var db = this;
+    var _prop = prop || (options && options.name);
     var val;
-    if (value && prop && (val = fetchProp(value, prop.split('.'))) !== undefined) {
-      tokenizeWords(val).forEach(emit);
+    if (value && _prop &&
+       (val = fetchProp(value, _prop.split('.'))) !== undefined) {
+      tokenizeWords(val, db.query.engine.fuzzy).forEach(emit);
     }
   };
 }
@@ -42,10 +46,10 @@ function fulltextPlan(idx, tokens) {
 
 function query(prop, q) {
   var db = this;
-  var path = prop.split('.');
-  var tokens = tokenizeWords(q);
   var idx = db.indexes[prop];
   if (idx && idx.type in db.query.engine.plans) {
+    var path = prop.split('.');
+    var tokens = tokenizeWords(q, db.query.engine.fuzzy);
     return db.query.engine.plans[idx.type].call(db, idx, tokens);
   } else {
     return null;
@@ -53,10 +57,11 @@ function query(prop, q) {
 }
 
 function match(prop, q, obj) {
+  var db = this;
   var path = prop.split('.');
 
-  var needles = tokenizeWords(q);
-  var haystack = tokenizeWords(fetchProp(obj, path));
+  var needles = tokenizeWords(q, db.query.engine.fuzzy);
+  var haystack = tokenizeWords(fetchProp(obj, path), db.query.engine.fuzzy);
   return needles.reduce(
     function (acc, needle) {
       return acc && ~haystack.indexOf(needle);

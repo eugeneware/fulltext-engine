@@ -18,11 +18,11 @@ describe('fulltext-engine', function() {
     db.close(done);
   });
 
-  it('should be able to index a document', function(done) {
+  it('should be able to index a document (non fuzzy)', function(done) {
     db = levelQuery(db);
 
     db.query.use(fulltextEngine());
-    db.ensureIndex('doc', 'fulltext', fulltextEngine.index('doc'));
+    db.ensureIndex('doc', 'fulltext', fulltextEngine.index());
 
     db.batch(testData(), doQuery);
     function doQuery(err) {
@@ -30,13 +30,39 @@ describe('fulltext-engine', function() {
       var hits = 0;
       db.query('doc', 'fear word')
         .on('data', function (data) {
-          console.error(data.doc);
           hits++;
         })
         .on('stats', function (stats) {
-          console.error(stats);
+          expect(stats).to.deep.equals(
+            { indexHits: 2, dataHits: 2, matchHits: 2 });
         })
         .on('end', function () {
+          expect(hits).to.deep.equals(2);
+          done();
+        });
+    }
+  });
+
+  it('should be able to index a document (fuzzy)', function(done) {
+    db = levelQuery(db);
+
+    db.query.use(fulltextEngine(true));
+    db.ensureIndex('doc', 'fulltext', fulltextEngine.index());
+
+    db.batch(testData(), doQuery);
+    function doQuery(err) {
+      if (err) return done(err);
+      var hits = 0;
+      db.query('doc', 'fear word')
+        .on('data', function (data) {
+          hits++;
+        })
+        .on('stats', function (stats) {
+          expect(stats).to.deep.equals(
+            { indexHits: 3, dataHits: 3, matchHits: 3 });
+        })
+        .on('end', function () {
+          expect(hits).to.deep.equals(3);
           done();
         });
     }

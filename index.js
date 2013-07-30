@@ -1,5 +1,6 @@
 var nlp = require('./nlp'),
     andStream = require('and-stream'),
+    orStream = require('joiner-stream'),
     tokenizeWords = nlp.tokenizeWords;
 
 module.exports = fulltextEngine;
@@ -31,32 +32,34 @@ function keyfn(index) {
   return index.key[index.key.length - 1];
 }
 
-function fulltextPlan(idx, tokens) {
+function fulltextPlan(idx, tokens, type) {
   var db = this;
-  var and = andStream(keyfn);
+  var s = (type === 'and') ? andStream(keyfn) : orStream();
   tokens.forEach(function (token) {
     idx.createIndexStream({
       start: [token, null],
       end: [token, undefined]
     })
-    .pipe(and.stream());
+    .pipe(type === 'and' ? s.stream() : s);
   });
-  return and;
+  return s;
 }
 
-function query(prop, q) {
+function query(prop, q, type) {
+  type = type || 'and';
+  type = type.toLowerCase();
   var db = this;
   var idx = db.indexes[prop];
   if (idx && idx.type in db.query.engine.plans) {
     var path = prop.split('.');
     var tokens = tokenizeWords(q, db.query.engine.fuzzy);
-    return db.query.engine.plans[idx.type].call(db, idx, tokens);
+    return db.query.engine.plans[idx.type].call(db, idx, tokens, type);
   } else {
     return null;
   }
 }
 
-function match(prop, q, obj) {
+function match(prop, q, type, obj) {
   var db = this;
   var path = prop.split('.');
 

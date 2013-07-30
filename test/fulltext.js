@@ -28,7 +28,7 @@ describe('fulltext-engine', function() {
     function doQuery(err) {
       if (err) return done(err);
       var hits = 0;
-      db.query('doc', 'fear word')
+      db.query('doc', 'fear word', 'and')
         .on('data', function (data) {
           hits++;
         })
@@ -53,7 +53,7 @@ describe('fulltext-engine', function() {
     function doQuery(err) {
       if (err) return done(err);
       var hits = 0;
-      db.query('doc', 'fear word')
+      db.query('doc', 'fear word', 'and')
         .on('data', function (data) {
           hits++;
         })
@@ -63,6 +63,31 @@ describe('fulltext-engine', function() {
         })
         .on('end', function () {
           expect(hits).to.deep.equals(3);
+          done();
+        });
+    }
+  });
+
+  it('should be able to search with ors', function(done) {
+    db = levelQuery(db);
+
+    db.query.use(fulltextEngine());
+    db.ensureIndex('doc', 'fulltext', fulltextEngine.index());
+
+    db.batch(testData(), doQuery);
+    function doQuery(err) {
+      if (err) return done(err);
+      var hits = 0;
+      db.query('doc', 'fear word', 'or')
+        .on('data', function (data) {
+          hits++;
+        })
+        .on('stats', function (stats) {
+          expect(stats).to.deep.equals(
+            { indexHits: 26, dataHits: 24, matchHits: 2 });
+        })
+        .on('end', function () {
+          expect(hits).to.deep.equals(2);
           done();
         });
     }

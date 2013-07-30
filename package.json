@@ -1,0 +1,39 @@
+{
+  "name": "fulltext-engine",
+  "version": "0.0.1",
+  "description": "levelquery-engine plugin to index and perform full-text search indexing of documents in levelup/leveldb",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eugeneware/fulltext-engine.git"
+  },
+  "keywords": [
+    "full-text",
+    "search",
+    "engine",
+    "index",
+    "indexing",
+    "levelup",
+    "leveldb",
+    "search-engine",
+    "full"
+  ],
+  "author": "Eugene Ware <eugene@noblesamurai.com>",
+  "license": "BSD",
+  "devDependencies": {
+    "rimraf": "~2.2.2",
+    "chai": "~1.7.2",
+    "byteup": "~0.1.1",
+    "mocha": "~1.12.0",
+    "levelup": "~0.12.0",
+    "level-queryengine": "0.0.1",
+    "leveldown": "~0.6.2"
+  },
+  "dependencies": {
+    "natural": "~0.1.21",
+    "and-stream": "0.0.1"
+  }
+}

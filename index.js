@@ -1,5 +1,6 @@
-var natural = require('natural'),
-    andStream = require('and-stream');
+var nlp = require('./nlp'),
+    andStream = require('and-stream'),
+    tokenizeWords = nlp.tokenizeWords;
 
 module.exports = fulltextEngine;
 function fulltextEngine() {
@@ -12,17 +13,27 @@ function fulltextEngine() {
   };
 }
 
+module.exports.index = index;
+function index(prop) {
+  return function (key, value, emit) {
+    var val;
+    if (value && prop && (val = fetchProp(value, prop.split('.'))) !== undefined) {
+      tokenizeWords(val).forEach(emit);
+    }
+  };
+}
+
 function keyfn(index) {
   return index.key[index.key.length - 1];
 }
 
-function fulltextPlan(idx, metaPhones) {
+function fulltextPlan(idx, tokens) {
   var db = this;
   var and = andStream(keyfn);
-  metaPhones.forEach(function (metaPhone) {
+  tokens.forEach(function (token) {
     idx.createIndexStream({
-      start: [metaPhone, null],
-      end: [metaPhone, undefined]
+      start: [token, null],
+      end: [token, undefined]
     })
     .pipe(and.stream());
   });
@@ -39,15 +50,6 @@ function query(prop, q) {
   } else {
     return null;
   }
-}
-
-function tokenizeWords(text) {
-  var _words = stem(stripStopWords(words(text)));
-  var map = metaphoneMap(_words);
-  return Object.keys(map).map(
-    function (word) {
-      return map[word];
-    });
 }
 
 function match(prop, q, obj) {
@@ -71,69 +73,4 @@ function fetchProp(obj, path) {
     }
   }
   return obj;
-}
-
-module.exports.index = index;
-function index(prop) {
-  return function (key, value, emit) {
-    var val;
-    if (value && prop && (val = fetchProp(value, prop.split('.'))) !== undefined) {
-      tokenizeWords(val).forEach(emit);
-    }
-  };
-}
-
-module.exports.words = words;
-function words (str){
-  return String(str).match(/\w+/g);
-}
-
-module.exports.stem = stem;
-function stem (words) {
-  var ret = [];
-  for (var i = 0, len = words.length; i < len; ++i) {
-    ret.push(natural.PorterStemmer.stem(words[i]));
-  }
-  return ret;
-}
-
-module.exports.stripStopWords = stripStopWords;
-function stripStopWords(words) {
-  var ret = [];
-  if (words) {
-    for (var i = 0, len = words.length; i < len; ++i) {
-      if (~natural.stopwords.indexOf(words[i])) continue;
-      ret.push(words[i]);
-    }
-  }
-  return ret;
-}
-
-module.exports.countWords = countWords;
-function countWords(words) {
-  var obj = {};
-  for (var i = 0, len = words.length; i < len; ++i) {
-    obj[words[i]] = (obj[words[i]] || 0) + 1;
-  }
-  return obj;
-}
-
-module.exports.metaphoneMap = metaphoneMap;
-function metaphoneMap(words){
-  var obj = {};
-  for (var i = 0, len = words.length; i < len; ++i) {
-    obj[words[i]] = natural.Metaphone.process(words[i]);
-  }
-  return obj;
-}
-
-module.exports.metaphoneArray = metaphoneArray;
-function metaphoneArray(words) {
-  var arr = []
-    , constant;
-  for (var i = 0, len = words.length; i < len; ++i) {
-    constant = natural.Metaphone.process(words[i]);
-    if (!~arr.indexOf(constant)) arr.push(constant);
-  }
-  return arr;
 }

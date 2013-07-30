@@ -16,7 +16,7 @@ function keyfn(index) {
   return index.key[index.key.length - 1];
 }
 
-function fulltextPlan(idx, words, metaPhones) {
+function fulltextPlan(idx, metaPhones) {
   var db = this;
   var and = andStream(keyfn);
   metaPhones.forEach(function (metaPhone) {
@@ -32,37 +32,29 @@ function fulltextPlan(idx, words, metaPhones) {
 function query(prop, q) {
   var db = this;
   var path = prop.split('.');
-  var _words = stem(stripStopWords(words(q)));
-  var map = metaphoneMap(_words);
-  var metaPhones = Object.keys(map).map(
-    function (word) {
-      return map[word];
-    });
+  var tokens = tokenizeWords(q);
   var idx = db.indexes[prop];
   if (idx && idx.type in db.query.engine.plans) {
-    return db.query.engine.plans[idx.type].call(db, idx, _words, metaPhones);
+    return db.query.engine.plans[idx.type].call(db, idx, tokens);
   } else {
     return null;
   }
 }
 
+function tokenizeWords(text) {
+  var _words = stem(stripStopWords(words(text)));
+  var map = metaphoneMap(_words);
+  return Object.keys(map).map(
+    function (word) {
+      return map[word];
+    });
+}
+
 function match(prop, q, obj) {
   var path = prop.split('.');
 
-  var needleWords = stem(stripStopWords(words(q)));
-  var needleMap = metaphoneMap(needleWords);
-  var needles = Object.keys(needleMap).map(
-    function (word) {
-      return needleMap[word];
-    });
-
-  var haystackWords = stem(stripStopWords(words(fetchProp(obj, path))));
-  var haystackMap = metaphoneMap(haystackWords);
-  var haystack = Object.keys(haystackMap).map(
-    function (word) {
-      return haystackMap[word];
-    });
-
+  var needles = tokenizeWords(q);
+  var haystack = tokenizeWords(fetchProp(obj, path));
   return needles.reduce(
     function (acc, needle) {
       return acc && ~haystack.indexOf(needle);
@@ -86,11 +78,7 @@ function index(prop) {
   return function (key, value, emit) {
     var val;
     if (value && prop && (val = fetchProp(value, prop.split('.'))) !== undefined) {
-      var _words = stem(stripStopWords(words(val)));
-      var map = metaphoneMap(_words);
-      Object.keys(map).forEach(function (word) {
-        emit(map[word]);
-      });
+      tokenizeWords(val).forEach(emit);
     }
   };
 }

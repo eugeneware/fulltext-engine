@@ -60,6 +60,7 @@ function query(prop, q, type) {
 }
 
 function match(obj, prop, q, type) {
+  type = type || 'and';
   var db = this;
   var path = prop.split('.');
 

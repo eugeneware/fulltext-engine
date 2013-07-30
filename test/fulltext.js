@@ -92,6 +92,30 @@ describe('fulltext-engine', function() {
         });
     }
   });
+
+  it('should be able to search a document with no indexes', function(done) {
+    db = levelQuery(db);
+
+    db.query.use(fulltextEngine(true));
+
+    db.batch(testData(), doQuery);
+    function doQuery(err) {
+      if (err) return done(err);
+      var hits = 0;
+      db.query('doc', 'fear word')
+        .on('data', function (data) {
+          hits++;
+        })
+        .on('stats', function (stats) {
+          expect(stats).to.deep.equals(
+            { indexHits: 0, dataHits: 100, matchHits: 3 });
+        })
+        .on('end', function () {
+          expect(hits).to.deep.equals(3);
+          done();
+        });
+    }
+  });
 });
 
 function testData() {

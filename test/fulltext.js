@@ -84,10 +84,10 @@ describe('fulltext-engine', function() {
         })
         .on('stats', function (stats) {
           expect(stats).to.deep.equals(
-            { indexHits: 26, dataHits: 24, matchHits: 2 });
+            { indexHits: 26, dataHits: 24, matchHits: 24 });
         })
         .on('end', function () {
-          expect(hits).to.deep.equals(2);
+          expect(hits).to.deep.equals(24);
           done();
         });
     }

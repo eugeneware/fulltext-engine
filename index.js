@@ -65,10 +65,15 @@ function match(obj, prop, q, type) {
 
   var needles = tokenizeWords(q, db.query.engine.fuzzy);
   var haystack = tokenizeWords(fetchProp(obj, path), db.query.engine.fuzzy);
-  return needles.reduce(
+  var hits = needles.reduce(
     function (acc, needle) {
-      return acc && ~haystack.indexOf(needle);
-    }, true);
+      return acc + (~haystack.indexOf(needle) ? 1 : 0);
+    }, 0);
+  if (type === 'and') {
+    return hits === needles.length;
+  } else {
+    return hits > 0;
+  }
 }
 
 function fetchProp(obj, path) {

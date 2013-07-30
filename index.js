@@ -59,7 +59,7 @@ function query(prop, q, type) {
   }
 }
 
-function match(prop, q, type, obj) {
+function match(obj, prop, q, type) {
   var db = this;
   var path = prop.split('.');
 

@@ -28,7 +28,7 @@ describe('fulltext-engine', function() {
     function doQuery(err) {
       if (err) return done(err);
       var hits = 0;
-      db.query('doc', 'fear word', 'and')
+      db.query('doc', 'fear word')
         .on('data', function (data) {
           hits++;
         })
@@ -53,7 +53,7 @@ describe('fulltext-engine', function() {
     function doQuery(err) {
       if (err) return done(err);
       var hits = 0;
-      db.query('doc', 'fear word', 'and')
+      db.query('doc', 'fear word')
         .on('data', function (data) {
           hits++;
         })

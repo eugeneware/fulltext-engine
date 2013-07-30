@@ -1,8 +1,8 @@
 var natural = require('natural'),
     andStream = require('and-stream');
 
-module.exports = pathEngine;
-function pathEngine() {
+module.exports = fulltextEngine;
+function fulltextEngine() {
   return {
     query: query,
     match: match,
@@ -12,20 +12,8 @@ function pathEngine() {
   };
 }
 
-function parseQuery(q) {
-  return {
-    prop: q.slice(0, q.length - 1).join('.'),
-    path: q.slice(0, q.length - 1),
-    value: q[q.length - 1]
-  };
-}
-
 function keyfn(index) {
   return index.key[index.key.length - 1];
-}
-
-function valfn(index) {
-  return index.key[index.key.length - 2];
 }
 
 function fulltextPlan(idx, words, metaPhones) {
@@ -60,8 +48,21 @@ function query(prop, q) {
 
 function match(prop, q, obj) {
   var path = prop.split('.');
-  var needles = words(q);
-  var haystack = fetchProp(obj, path);
+
+  var needleWords = stem(stripStopWords(words(q)));
+  var needleMap = metaphoneMap(needleWords);
+  var needles = Object.keys(needleMap).map(
+    function (word) {
+      return needleMap[word];
+    });
+
+  var haystackWords = stem(stripStopWords(words(fetchProp(obj, path))));
+  var haystackMap = metaphoneMap(haystackWords);
+  var haystack = Object.keys(haystackMap).map(
+    function (word) {
+      return haystackMap[word];
+    });
+
   return needles.reduce(
     function (acc, needle) {
       return acc && ~haystack.indexOf(needle);

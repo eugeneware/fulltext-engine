@@ -79,6 +79,7 @@ describe('fulltext-engine', function() {
       var hits = 0;
       db.query('doc', 'fear word')
         .on('data', function (data) {
+          console.error(data.doc);
           hits++;
         })
         .on('stats', function (stats) {
@@ -90,8 +91,6 @@ describe('fulltext-engine', function() {
     }
   });
 });
-
-
 
 function testData() {
   var docs =

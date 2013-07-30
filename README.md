@@ -111,5 +111,7 @@ terms present.
 ## TODO
 
 This project is under active development. Here's a list of things I'm planning to add:
+
 * indexing the frequency of words as well and use it to rank better matching documents higher.
+* proper Information Retrieval ranking algorithms
 

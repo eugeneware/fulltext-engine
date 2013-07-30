@@ -87,7 +87,7 @@ so you can tell if an index did or didn't get used.
 
 ## API
 
-## fulltextEngine([fuzzy])
+### fulltextEngine([fuzzy])
 
 Returns a full text engine query engine for use with `level-queryEngine`.
 
@@ -95,13 +95,13 @@ Note: you can pass an optional boolean parameter to the contructor of the fullte
 factory function if you want to use a "fuzzy" search similar sounding words will
 match; (eg. "for" and "fear" would match under the fuzzy match).
 
-## fulltextEngine.index([propertyToIndex])
+### fulltextEngine.index([propertyToIndex])
 
 Returns a full text engine indexing strategy to use with `db.ensureIndex`.
 
 If not provided, the `ensureIndex` will index the object path defined by the index name.
 
-## db.query(pathName, searchText, [andOr])
+### db.query(pathName, searchText, [andOr])
 
 Will seach the object path `pathName` for the presence of `searchText`. The
 default search is an AND (ie. all search terms must be present). You can also

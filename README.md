@@ -4,6 +4,8 @@ Query your levelup/leveldb engine using full text search phrases **with INDEXES*
 
 This is a plugin for [level-queryengine](https://github.com/eugeneware/level-queryengine).
 
+[![build status](https://secure.travis-ci.org/eugeneware/fulltext-engine.png)](http://travis-ci.org/eugeneware/fulltext-engine)
+
 ## Installation
 
 Install through npm:

@@ -28,7 +28,8 @@
     "chai": "^1.9.1",
     "mocha": "^1.18.2",
     "levelup": "^0.18.3",
-    "leveldown": "^0.10.2"
+    "leveldown": "^0.10.2",
+    "multilevel": "^6.0.0"
   },
   "dependencies": {
     "natural": "^0.1.27",

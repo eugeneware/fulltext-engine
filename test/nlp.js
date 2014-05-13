@@ -15,7 +15,7 @@ describe('nlp functions', function () {
   it('should be able to stem words', function(done) {
     var stems = nlp.stem(nlp.words(doc));
     expect(stems).to.deep.equals(
-      [ 'bless', 'ar', 'the', 'undefiled', 'in', 'the', 'wai', 'who', 'walk',
+      [ 'bless', 'are', 'the', 'undefiled', 'in', 'the', 'wai', 'who', 'walk',
         'in', 'the', 'law', 'of', 'the', 'lord' ]);
     done();
   });

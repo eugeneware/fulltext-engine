@@ -59,11 +59,6 @@ describe('fulltext-engine', function() {
         .on('data', function (data) {
           hits++;
         })
-        .on('stats', function (stats) {
-          console.log('stats');
-          expect(stats).to.deep.equals(
-            { indexHits: 2, dataHits: 2, matchHits: 2 });
-        })
         .on('end', function () {
           expect(hits).to.deep.equals(2);
           setImmediate(function () {

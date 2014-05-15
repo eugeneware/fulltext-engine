@@ -15,11 +15,13 @@ function stem (words) {
 }
 
 exports.stripStopWords = stripStopWords;
-function stripStopWords(words) {
+function stripStopWords(words, options) {
   var ret = [];
+  options = options || {};
+  var stopwords = options.stopwords || natural.stopwords;
   if (words) {
     for (var i = 0, len = words.length; i < len; ++i) {
-      if (~natural.stopwords.indexOf(words[i])) continue;
+      if (~stopwords.indexOf(words[i])) continue;
       ret.push(words[i]);
     }
   }
@@ -56,9 +58,9 @@ function metaphoneArray(words) {
 }
 
 exports.tokenizeWords = tokenizeWords;
-function tokenizeWords(text, fuzzy) {
-  var _words = stem(stripStopWords(words(text)));
-  if (!fuzzy) return _words;
+function tokenizeWords(text, options) {
+  var _words = stem(stripStopWords(words(text), options));
+  if (!options.fuzzy) return _words;
 
   var map = metaphoneMap(_words);
   return Object.keys(map).map(

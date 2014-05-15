@@ -115,6 +115,33 @@ describe('fulltext-engine', function() {
         });
     }
   });
+
+  it('should be able to search for a stopword and not hang', function(done) {
+    db = levelQuery(db);
+
+    db.query.use(fulltextEngine());
+    db.ensureIndex('doc', 'fulltext', fulltextEngine.index());
+
+    db.batch(testData(), doQuery);
+    function doQuery(err) {
+      if (err) return done(err);
+      var hits = 0;
+      db.query('doc', 'while')
+        .on('data', function (data) {
+          hits++;
+        })
+        .on('stats', function (stats) {
+          expect(stats).to.deep.equals(
+           { indexHits: 0, dataHits: 0, matchHits: 0 });
+        })
+        .on('end', function () {
+          expect(hits).to.deep.equals(0);
+          done();
+        });
+    }
+  });
+
+
 });
 
 function testData() {

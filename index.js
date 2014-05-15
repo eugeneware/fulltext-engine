@@ -35,6 +35,9 @@ function keyfn(index) {
 function fulltextPlan(idx, tokens, type) {
   var db = this;
   var s = (type === 'and') ? andStream(keyfn) : orStream();
+  if (tokens.length === 0) {
+    tokens.push('');
+  }
   tokens.forEach(function (token) {
     idx.createIndexStream({
       start: [token, null],

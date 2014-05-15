@@ -115,6 +115,35 @@ describe('fulltext-engine', function() {
         });
     }
   });
+
+  it('should be able to specify custom list of stopwords', function(done) {
+
+    db = levelQuery(db);
+
+    db.query.use(fulltextEngine({
+      stopwords: ['about', 'after', 'all', 'also']
+    }));
+    db.ensureIndex('doc', 'fulltext', fulltextEngine.index());
+
+    db.batch(testData(), doQuery);
+    function doQuery(err) {
+      if (err) return done(err);
+      var hits = 0;
+      db.query('doc', '2')
+        .on('data', function (data) {
+          hits++;
+        })
+        .on('stats', function (stats) {
+          expect(stats).to.deep.equals(
+            { indexHits: 2, dataHits: 2, matchHits: 2 });
+        })
+        .on('end', function () {
+          expect(hits).to.deep.equals(2);
+          done();
+        });
+    }
+  });
+
 });
 
 function testData() {
@@ -123,8 +152,8 @@ function testData() {
     'Blessed are the undefiled in the way, who walk in the law of the LORD.',
     'Blessed are they that keep his testimonies, and that seek him with the whole heart.',
     'They also do no iniquity: they walk in his ways.',
-    'Thou hast commanded us to keep thy precepts diligently.',
-    'O that my ways were directed to keep thy statutes!',
+    'Thou hast commanded us 2 keep thy precepts diligently.',
+    'O that my ways were directed 2 keep thy statutes!',
     'Then shall I not be ashamed, when I have respect unto all thy commandments.',
     'I will praise thee with uprightness of heart, when I shall have learned thy righteous judgments.',
     'I will keep thy statutes: O forsake me not utterly.',

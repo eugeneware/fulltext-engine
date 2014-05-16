@@ -1,6 +1,6 @@
 {
   "name": "fulltext-engine",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "levelquery-engine plugin to index and perform full-text search indexing of documents in levelup/leveldb",
   "main": "index.js",
   "scripts": {
